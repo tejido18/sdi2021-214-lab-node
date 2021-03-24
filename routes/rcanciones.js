@@ -36,6 +36,10 @@ module.exports = function(app, swig) {
         res.send(respuesta);
     });
 
+    app.get('/canciones/*', function(req, res) {
+        res.send("ruta incorrecta");
+    });
+
     app.post("/cancion", function(req, res) {
         res.send("Cancion agregada: " + req.body.nombre + "<br>"
         +" género: " + req.body.genero + "<br>"
