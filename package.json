@@ -3,6 +3,9 @@
   "description": "Tienda de Música",
   "version": "1.0.0",
   "dependencies": {
-    "express": "^4.17.1"
+    "body-parser": "^1.19.0",
+    "bootstrap": "^3.4.1",
+    "express": "^4.17.1",
+    "swig": "^1.4.2"
   }
 }
