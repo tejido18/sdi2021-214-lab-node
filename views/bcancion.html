@@ -16,6 +16,24 @@
 			 <!-- Cambiar el precio por "reproducir" si ya está comprada -->
 		  </div>
 		</div>
+		 <div cass="row">
+			<h2>Comentarios</h2>
+			 {% for comentario in comentarios %}
+				 <h2>{{ comentario.autor }}</h2>
+			     <p>{{ comentario.texto }}</p>
+			 {% endfor %}
+		 </div>
+		 <form class="form-horizontal" method="post" for="comentario" encType="multipart/form-data">
+			 <div>
+				 <h3>Poner un nuevo Comentario</h3>
+				 <p>Usuario:</p>
+				 <input type="text" class="form-control" name="email"
+						placeholder="Email de usuario" required="false" />
+				 <input type="text" class="form-control" name="texto"
+						placeholder="comentario" required="false" />
+				 <button type="submit" class="btn btn-primary">Eviar</button>
+			 </div>
+		 </form>
 	  </div>
 	  
 	 <!-- -->

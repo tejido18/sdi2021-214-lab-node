@@ -32,17 +32,48 @@ module.exports = function(app, swig, gestorBD) {
     app.get('/canciones/:id', function(req, res) {
         let criterio = { "_id" : gestorBD.mongo.ObjectID(req.params.id) };
         gestorBD.obtenerCanciones(criterio,function(canciones){
-            if ( canciones == null ){
-                res.send("Error al recuperar la canción.");
-            } else {
-                let respuesta = swig.renderFile('views/bcancion.html',
-                    {
-                        cancion : canciones[0]
+                if ( canciones == null ){
+                    res.send("Error al recuperar la canción.");
+                } else {
+                    gestorBD.obtenerComentarios(criterio,function(comentarios){
+                    let respuesta = swig.renderFile('views/bcancion.html',
+                        {
+                            cancion : canciones[0],
+                            comentarios : comentarios
+                        });
+                    res.send(respuesta);
                     });
-                res.send(respuesta);
-            }
+                }
         });
     });
+
+    app.post('/canciones/:id', function(req, res) {
+        let comentario = {
+            "cancion_id" : gestorBD.mongo.ObjectID(req.params.id),
+            "texto" : req.params.texto,
+            "autor" : req.params.email
+        };
+
+        gestorBD.insertarComentario(comentario,function(id){
+                if ( id == null ){
+                    res.send("Error al recuperar el comentario.");
+                } else {
+                    let criterio = { autor : req.session.usuario };
+                    gestorBD.obtenerCanciones(criterio, function(canciones) {
+                        if (canciones == null) {
+                            res.send("Error al listar ");
+                        }else{
+                            let respuesta = swig.renderFile('views/btienda.html',
+                                {
+                                    canciones : canciones
+                                });
+                            res.send(respuesta);
+                        }
+                    });
+                }
+        });
+    });
+
     app.get('/canciones/:genero/:id', function(req, res) {
         let respuesta = 'id: ' + req.params.id + '<br>'
             + 'Género: ' + req.params.genero;

@@ -60,10 +60,11 @@ app.use(express.static('public'));
 //variables
 app.set('port', 8081);
 app.set('db','mongodb://admin:sdi@tiendamusica-shard-00-' +
-    '00.ustd9.mongodb.net:27017,tiendamusica-shard-00-' +
-    '01.ustd9.mongodb.net:27017,tiendamusica-shard-00-' +
-    '02.ustd9.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=atlas-t2hakm-shard-' +
-    '0&authSource=admin&retryWrites=true&w=majority');
+    '00.dz21n.mongodb.net:27017,tiendamusica-shard-00-' +
+    '01.dz21n.mongodb.net:27017,tiendamusica-shard-00-' +
+    '02.dz21n.mongodb.net:27017/myFirstDatabase?ssl=true' +
+    '&replicaSet=atlas-chaa7s-shard-0&authSource=admin' +
+    '&retryWrites=true&w=majority');
 app.set('clave','abcdefg');
 app.set('crypto',crypto);
 
