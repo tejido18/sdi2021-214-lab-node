@@ -5,6 +5,40 @@ module.exports = {
         this.mongo = mongo;
         this.app = app;
     },
+    obtenerCompras : function(criterio,funcionCallBack){
+        this.mongo.MongoClient.connect(this.app.get('db'),function(err,db){
+            if(err){
+                funcionCallBack(null);
+            } else{
+                let collection = db.collection('compras');
+                collection.find(criterio).toArray(function(err,usuarios){
+                    if(err){
+                        funcionCallBack(null);
+                    } else {
+                        funcionCallBack(usuarios);
+                    }
+                    db.close();
+                })
+            }
+        })
+    },
+    insertarCompra: function(compra, funcionCallback) {
+        this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
+            if (err) {
+                funcionCallback(null);
+            } else {
+                let collection = db.collection('compras');
+                collection.insert(compra, function(err, result) {
+                    if (err) {
+                        funcionCallback(null);
+                    } else {
+                        funcionCallback(result.ops[0]._id);
+                    }
+                    db.close();
+                });
+            }
+        });
+    },
     eliminarCancion : function(criterio, funcionCallback) {
         this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
             if (err) {
