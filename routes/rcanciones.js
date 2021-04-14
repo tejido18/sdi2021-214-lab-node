@@ -31,20 +31,31 @@ module.exports = function(app, swig, gestorBD) {
 
     app.get('/canciones/:id', function(req, res) {
         let criterio = { "_id" : gestorBD.mongo.ObjectID(req.params.id) };
+
         gestorBD.obtenerCanciones(criterio,function(canciones){
-                if ( canciones == null ){
-                    res.send("Error al recuperar la canción.");
-                } else {
-                    gestorBD.obtenerComentarios(criterio,function(comentarios){
-                    let respuesta = swig.renderFile('views/bcancion.html',
-                        {
-                            cancion : canciones[0],
-                            comentarios : comentarios
-                        });
-                    res.send(respuesta);
-                    });
-                }
-        });
+                 if ( canciones == null ){
+                     res.send("Error al recuperar la canción.");
+                 } else {
+                     cancionId = gestorBD.mongo.ObjectID(req.params.id);
+                     usuario = req.session.usuario;
+                     puedeComprar(usuario, cancionId, function(comprar){
+                         let criterio_comentario = {"cancion_id": cancionId};
+                         gestorBD.obtenerComentarios(criterio,function(comentarios){
+                             if(comentarios == null){
+                                 res.send(respuesta);
+                             } else {
+                                 let respuesta = swig.renderFile('views/bcancion.html',
+                                     {
+                                         cancion : canciones[0],
+                                         comentarios : comentarios,
+                                         puedeComprar: comprar
+                                     });
+                                 res.send(respuesta);
+                             }
+                          });
+                     })
+                 }
+          });
     });
 
     app.post('/canciones/:id', function(req, res) {
@@ -135,15 +146,20 @@ module.exports = function(app, swig, gestorBD) {
 
     app.get('/cancion/comprar/:id', function(req,res){
         let cancionId = gestorBD.mongo.ObjectID(req.params.id);
-        let compra = {
-            usuario : req.session.usuario,
-            cancionId : cancionId
-        }
-        gestorBD.insertarCompra(compra ,function(idCompra){
-            if ( idCompra == null ){
-                res.send(respuesta);
+        let usuario = req.session.usuario;
+
+        puedeComprar(usuario,cancionId,function (comprar) {
+            if(comprar){
+                let compra = {usuario: usuario, cacnionId: cancionId};
+                gestorBD.insertarCompra(compra, function(idCompra){
+                    if(idCompra==null) {
+                        res.send(respuesta);
+                    } else {
+                        res.redirect("/compras");
+                    }
+                });
             } else {
-                res.redirect("/compras");
+                next(new Error("Error al comprar la canción o ya la compraste"));
             }
         });
     })
@@ -296,4 +312,23 @@ module.exports = function(app, swig, gestorBD) {
             callback(true); // FIN
         }
     };
+
+    function puedeComprar(usuario, cancionId, functionCallBack){
+        let criterio_cancion_autor = {$and: [{"_id": cancionId}, {"autor": usuario}]};
+        let criterio_comprada = {$and: [{"cancionId": cancionId},{"usuario": usuario}]};
+
+        gestorBD.obtenerCanciones(criterio_cancion_autor, function(canciones){
+            if(canciones == null || canciones.length > 0){
+                functionCallBack(false);
+            } else {
+                gestorBD.obtenerCompras(criterio_comprada, function(compras){
+                    if(compras == null || compras.length > 0){
+                        functionCallBack(false);
+                    } else {
+                        functionCallBack(true);
+                    }
+                });
+            }
+        });
+    }
 };
