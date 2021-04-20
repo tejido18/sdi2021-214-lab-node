@@ -40,7 +40,7 @@ module.exports = function(app, swig, gestorBD) {
                      usuario = req.session.usuario;
                      puedeComprar(usuario, cancionId, function(comprar){
                          let criterio_comentario = {"cancion_id": cancionId};
-                         gestorBD.obtenerComentarios(criterio,function(comentarios){
+                         gestorBD.obtenerComentarios(criterio_comentario,function(comentarios){
                              if(comentarios == null){
                                  res.send(respuesta);
                              } else {
