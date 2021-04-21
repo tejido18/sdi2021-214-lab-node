@@ -100,8 +100,8 @@ routerUsuarioAutor.use(function(req, res, next) {
     console.log("routerUsuarioAutor");
     let path = require('path');
     let id = path.basename(req.originalUrl);
-// Cuidado porque req.params no funciona
-// en el router si los params van en la URL.
+    // Cuidado porque req.params no funciona
+    // en el router si los params van en la URL.
     gestorBD.obtenerCanciones(
         {_id: mongo.ObjectID(id) }, function (canciones) {
             console.log(canciones[0]);
