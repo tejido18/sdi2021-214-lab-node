@@ -145,22 +145,31 @@ module.exports = function(app, gestorBD) {
         let criterio = {"_id": gestorBD.mongo.ObjectID(req.params.id)};
         let usuario = res.usuario;
 
-        validarUsuarioDueño(usuario, criterio, function (errors) {
-            if (errors !== null && errors.length > 0) {
-                res.status(403);
+        gestorBD.obtenerCanciones(criterio, function (canciones) {
+            if (canciones == null) {
+                res.status(500);
                 res.json({
-                    errores: errors
+                    error: "se ha producido un error"
                 })
             } else {
-                gestorBD.eliminarCancion(criterio, function (canciones) {
-                    if (canciones == null) {
-                        res.status(500);
+                validarUsuarioDueño(usuario, canciones[0], function (errors) {
+                    if (errors !== null && errors.length > 0) {
+                        res.status(403);
                         res.json({
-                            error: "se ha producido un error"
+                            errores: errors
                         })
                     } else {
-                        res.status(200);
-                        res.send(JSON.stringify(canciones));
+                        gestorBD.eliminarCancion(criterio, function (canciones) {
+                            if (canciones == null) {
+                                res.status(500);
+                                res.json({
+                                    error: "se ha producido un error"
+                                })
+                            } else {
+                                res.status(200);
+                                res.send(JSON.stringify(canciones));
+                            }
+                        });
                     }
                 });
             }
@@ -173,7 +182,7 @@ module.exports = function(app, gestorBD) {
             errors.push("El nombre de la canción no puede estar vacío");
         if (cancion.genero === null || typeof cancion.genero == 'undefined' || cancion.genero === "")
             errors.push("El género de la canción no puede estar vacío")
-        if (cancion.precio === null || typeof cancion.precio === 'undefined' || cancion.precio > 0 || cancion.precio === "")
+        if (cancion.precio === null || typeof cancion.precio === 'undefined' || cancion.precio < 0 || cancion.precio === "")
             errors.push("El precio de la canción no puede ser negativo")
         if (errors.length <= 0)
             functionCallBack(null)
@@ -181,24 +190,16 @@ module.exports = function(app, gestorBD) {
             functionCallBack(errors)
     }
 
-    function validarUsuarioDueño(usuario, criterio, functionCallBack) {
+    function validarUsuarioDueño(usuario, cancion, functionCallBack) {
         let errors = new Array();
 
-        gestorBD.obtenerCanciones(criterio, function (canciones) {
-            if (canciones == null) {
-                res.status(500);
-                res.json({
-                    error: "se ha producido un error"
-                })
-            } else {
-                if (usuario.id != canciones[0].autor.id)
-                    errors.push("No eres el dueño de la canción");
-            }
+        if (usuario != cancion.autor)
+            errors.push("No eres el dueño de la canción");
 
-            if (errors.length <= 0)
-                functionCallBack(null)
-            else
-                functionCallBack(errors)
-        });
+        if (errors.length <= 0)
+            functionCallBack(null)
+        else
+            functionCallBack(errors)
+
     }
 }
