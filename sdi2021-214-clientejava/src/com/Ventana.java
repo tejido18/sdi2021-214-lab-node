@@ -69,4 +69,5 @@ public class Ventana {
 				 textoMemoria.setText("Memoria libre: "+memoria +" ("+peticiones+")");
 			 }
 		});
+	}
 }
